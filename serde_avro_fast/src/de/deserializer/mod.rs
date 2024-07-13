@@ -68,9 +68,9 @@ impl<'de, R: ReadSlice<'de>> Deserializer<'de> for DatumDeserializer<'_, '_, R> 
 			}
 			SchemaNode::Uuid => read_length_delimited(self.state, StringVisitor(visitor)),
 			SchemaNode::Date => visitor.visit_i32(self.state.read_varint()?),
-			SchemaNode::TimeMillis => visitor.visit_i32(self.state.read_varint()?),
+			SchemaNode::TimeMillis => visitor.visit_i64(1000 * (self.state.read_varint::<i32>()? as i64)),
 			SchemaNode::TimeMicros => visitor.visit_i64(self.state.read_varint()?),
-			SchemaNode::TimestampMillis => visitor.visit_i64(self.state.read_varint()?),
+			SchemaNode::TimestampMillis => visitor.visit_i64(1000 * self.state.read_varint::<i64>()?),
 			SchemaNode::TimestampMicros => visitor.visit_i64(self.state.read_varint()?),
 			SchemaNode::Duration => visitor.visit_map(DurationMapAndSeqAccess {
 				duration_buf: &self.state.read_const_size_buf::<12>()?,
